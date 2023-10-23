@@ -1,39 +1,49 @@
-import Layout from '../../components/layout';
-import { getAllPostIds, getPostData } from '../../lib/posts';
 import Head from 'next/head';
-import Date from '../../components/date';
-import utilStyles from '../../styles/utils.module.css';
+import Layout, { siteTitle } from '../components/layout';
+import utilStyles from '../styles/utils.module.css';
+import { getSortedPostsData } from '../lib/posts';
+import Link from 'next/link';
+import Date from '../components/date';
 
-export default function Post({ postData }) {
+export default function Home({ allPostsData }) {
   return (
-    <Layout>
+    <Layout home>
       <Head>
-        <title>{postData.title}</title>
+        <title>{siteTitle}</title>
       </Head>
-      <article>
-        <h1 className={utilStyles.headingXl}>{postData.title}</h1>
-        <div className={utilStyles.lightText}>
-          <Date dateString={postData.date} />
-        </div>
-        <div dangerouslySetInnerHTML={{ __html: postData.contentHtml }} />
-      </article>
+      <section className={utilStyles.headingMd}>
+        <p>
+          Hi, I’m <strong>Ron</strong>. I am an aspiring software engineer who is very passionate about technology. Here is my {' '}
+          <a href="https://www.linkedin.com/in/ron-busgith">Linkedin</a>.
+        </p>
+        <p>
+          (This is a sample website - you’ll be building a site like this in{' '}
+          <a href="https://nextjs.org/learn">our Next.js tutorial</a>.)
+        </p>
+      </section>
+      <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
+        <h2 className={utilStyles.headingLg}>Blog</h2>
+        <ul className={utilStyles.list}>
+          {allPostsData.map(({ id, date, title }) => (
+            <li className={utilStyles.listItem} key={id}>
+              <Link href={`/posts/${id}`}>{title}</Link>
+              <br />
+              <small className={utilStyles.lightText}>
+                <Date dateString={date} />
+              </small>
+            </li>
+          ))}
+        </ul>
+      </section>
     </Layout>
   );
 }
 
-export async function getStaticPaths() {
-  const paths = getAllPostIds();
-  return {
-    paths,
-    fallback: false,
-  };
-}
-
-export async function getStaticProps({ params }) {
-  const postData = await getPostData(params.id);
+export async function getStaticProps() {
+  const allPostsData = getSortedPostsData();
   return {
     props: {
-      postData,
+      allPostsData,
     },
   };
 }
